@@ -39,6 +39,14 @@ fastp \
       --html "${OUTPUT_DIR}reports/${sample_name}.html" \
       --json "${OUTPUT_DIR}reports/${sample_name}.json"
 ```
+
+#### 3.1.3. Kiểm tra dữ liệu sau khi lọc
+
+```bash
+fastqc Fastp/clean_fastq/*.gz -o FastQCFiltered -t 8
+multiqc FastQCFiltered -o MultiQCFiltered
+```
+
 ### 3.1. Thí nghiệm 2
 Phân tích 2 gen Brca 1 và Brca 2 riêng lẻ
 
@@ -69,4 +77,11 @@ fastp \
       --thread 8 \
       --html "${OUTPUT_DIR}reports/${sample_name}.html" \
       --json "${OUTPUT_DIR}reports/${sample_name}.json"
+```
+
+#### 3.1.3. Kiểm tra dữ liệu sau khi lọc
+
+```bash
+fastqc Fastp/clean_fastq/*.gz -o FastQCFiltered -t 8
+multiqc FastQCFiltered -o MultiQCFiltered
 ```
