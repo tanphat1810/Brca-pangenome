@@ -19,6 +19,26 @@ multiqc FastQC -o MultiQC
 ./run_fastp.sh Raw Fastp
 ```
 
+```bash
+fastp \
+      -i "$r1_path" \
+      -I "$r2_path" \
+      -o "${OUTPUT_DIR}clean_fastq/${sample_name}_clean_R1.fastq.gz" \
+      -O "${OUTPUT_DIR}clean_fastq/${sample_name}_clean_R2.fastq.gz" \
+      --trim_front1 30 \
+      --trim_front2 30 \
+      --detect_adapter_for_pe \
+      --cut_right \
+      --cut_right_window_size 4 \
+      --cut_right_mean_quality 20 \
+      --qualified_quality_phred 20 \
+      --unqualified_percent_limit 20 \
+      --length_required 50 \
+      --correction \
+      --thread 8 \
+      --html "${OUTPUT_DIR}reports/${sample_name}.html" \
+      --json "${OUTPUT_DIR}reports/${sample_name}.json"
+```
 ### 3.1. Thí nghiệm 2
 Phân tích 2 gen Brca 1 và Brca 2 riêng lẻ
 
@@ -31,4 +51,22 @@ multiqc FastQC -o MultiQC
 #### 3.1.2. Làm sạch reads (fastp)
 ```bash
 ./run_fastp.sh Raw Fastp
+```
+
+```bash
+fastp \
+      -i "$r1_path" \
+      -I "$r2_path" \
+      -o "${OUTPUT_DIR}clean_fastq/${sample_name}_clean_R1.fastq.gz" \
+      -O "${OUTPUT_DIR}clean_fastq/${sample_name}_clean_R2.fastq.gz" \
+      --detect_adapter_for_pe \
+      --trim_front1 30 \
+      --trim_front2 30 \
+      --qualified_quality_phred 20 \
+      --unqualified_percent_limit 20 \
+      --length_required 50 \
+      --correction \
+      --thread 8 \
+      --html "${OUTPUT_DIR}reports/${sample_name}.html" \
+      --json "${OUTPUT_DIR}reports/${sample_name}.json"
 ```
