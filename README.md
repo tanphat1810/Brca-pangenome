@@ -49,7 +49,7 @@ multiqc FastQCFiltered -o MultiQCFiltered
 #### 3.1.4. Mapping
 
 ```bash
-./mapping.sh -r <Đường_dẫn_file_Ref> -i <Thư_mục_chứa_Fastq> -o <Thư_mục_kết_quả>
+./MappingBrca.sh -r <Đường_dẫn_file_Ref> -i <Thư_mục_chứa_Fastq> -o <Thư_mục_kết_quả>
 ```
 
 ### 3.1. Thí nghiệm 2
