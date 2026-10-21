@@ -16,7 +16,7 @@ multiqc FastQC -o MultiQC
 
 #### 3.1.2. Làm sạch reads (fastp)
 ```bash
-./run_fastp.sh Raw Fastp
+./Fastp.sh Raw Fastp
 ```
 
 ```bash
