@@ -51,6 +51,16 @@ multiqc FastQCFiltered -o MultiQCFiltered
 ```bash
 ./MappingBrca.sh -r <Đường_dẫn_file_Ref> -i <Thư_mục_chứa_Fastq> -o <Thư_mục_kết_quả>
 ```
+#### 3.1.2. Kiem tra sau mapping
+
+```bash
+python Script/CheckMapping.py \
+    -i MappingBCRA \
+    -o MappingBCRA/QCSummary \
+    --good 90 \
+    --warn 80 \
+    --quickcheck
+```
 
 ### 3.1. Thí nghiệm 2
 Phân tích 2 gen Brca 1 và Brca 2 riêng lẻ
