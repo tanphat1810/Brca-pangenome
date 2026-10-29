@@ -51,7 +51,7 @@ multiqc FastQCFiltered -o MultiQCFiltered
 ```bash
 ./MappingBrca.sh -r <Đường_dẫn_file_Ref> -i <Thư_mục_chứa_Fastq> -o <Thư_mục_kết_quả>
 ```
-#### 3.1.2. Kiem tra sau mapping
+#### 3.1.5. Kiem tra sau mapping
 
 ```bash
 python Script/CheckMapping.py \
@@ -60,6 +60,120 @@ python Script/CheckMapping.py \
     --good 90 \
     --warn 80 \
     --quickcheck
+```
+
+#### 3.1.6. Variant calling
+```bash
+python Script/brca_graph_pipeline.py \
+    --bam-dir Mapping/BAM \
+    --reference BrcaRef/BRCA_combined.fa \
+    --flagstat-dir Mapping/Stats \
+    --min-mapping-pct 90 \
+    --outdir BRCA_Pangenome \
+    --threads 16 \
+    --min-mapq 20 \
+    --min-baseq 20 \
+    --max-depth 10000 \
+    --min-qual 30 \
+    --min-dp 10 \
+    --quickcheck \
+    --index-giraffe
+```
+
+#### 3.1.7. Kiểm tra kết quả variant calling
+
+Đếm VCF sau lọc:
+```bash
+find Pangenome/per_sample \
+    -name "*.filtered.vcf.gz" \
+    -type f | wc -l
+```
+
+Kiểm tra file và index:
+```bash
+python - <<'PY'
+from pathlib import Path
+
+lst = Path("BRCA_Pangenome/cohort/vcf_files.txt")
+files = [
+    Path(x.strip())
+    for x in lst.read_text().splitlines()
+    if x.strip()
+]
+
+missing = [p for p in files if not p.is_file()]
+
+missing_index = [
+    p for p in files
+    if not Path(str(p) + ".csi").is_file()
+    and not Path(str(p) + ".tbi").is_file()
+]
+
+print("Total VCF:", len(files))
+print("Missing VCF:", len(missing))
+print("Missing index:", len(missing_index))
+PY
+```
+
+#### 3.1.8. Gộp VCF thành cohort VCF
+
+merge:
+```bash
+bcftools merge \
+    -m none \
+    --threads 16 \
+    -l Pangenome/cohort/vcf_files.txt \
+    -Oz \
+    -o Pangenome/cohort/cohort.merged.vcf.gz
+```
+Tạo index:
+
+```bash
+bcftools index -f \
+    Pangenome/cohort/cohort.merged.vcf.gz
+```
+
+#### 3.1.9. Hợp nhất các allele tại cùng vị trí
+```bash
+bcftools norm \
+    -f BrcaRef/BRCA_combined.fa \
+    -m +any \
+    -Oz \
+    -o Pangenome/cohort/cohort.multiallelic.vcf.gz \
+    BRCA_Pangenome/cohort/cohort.merged.vcf.gz
+```
+
+Tạo index:
+```bash
+bcftools index -f \
+    Pangenome/cohort/cohort.multiallelic.vcf.gz
+```
+
+#### 3.1.10. Xây dựng BRCA variation graph và Giraffe indexes
+
+Tạo thư mục graph:
+```bash
+mkdir -p Pangenome/graph
+```
+
+Chạy vg autoindex:
+```bash
+set -o pipefail
+
+vg autoindex \
+    --workflow giraffe \
+    -r BrcaRef/BRCA_combined.fa \
+    -v Pangenome/cohort/cohort.multiallelic.vcf.gz \
+    -p Pangenome/graph/BRCA_graph \
+    -t 16 \
+    2>&1 | tee Pangenome/graph/autoindex.log
+```
+
+#### 3.1.11. Chuyển GBZ sang GFA
+```bash
+vg convert -fW \
+    Pangenome/graph/BRCA_graph.giraffe.gbz \
+    > Pangenome/graph/BRCA_graph.gfa
 ```
 
 ### 3.1. Thí nghiệm 2
